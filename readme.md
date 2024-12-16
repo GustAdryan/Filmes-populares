@@ -1,0 +1,1 @@
+Essa aplicação mostra os filmes mais popuplares do momento, logo mais sera adicionado mais funcionalidades
