@@ -1,6 +1,39 @@
 import { apiKey } from "./environment/key.js";
 
-let moviesContainer = document.querySelector('.container-movies');
+const moviesContainer = document.querySelector('.container-movies');
+const inputSearch = document.querySelector('#search');
+const searchBtn = document.querySelector('.iconSearch');
+
+
+searchBtn.addEventListener('click', movieSearch);
+
+inputSearch.addEventListener('keyup', function(event) {
+  console.log(event.key)
+  if (event.keyCode == 13) {
+    movieSearch()
+    return
+  }
+})
+
+async function movieSearch() {
+  const inputValue = inputSearch.value
+  if (inputValue != '') {
+    cleanAllMovies()
+    const movies = await searchMovieByName(inputValue)
+    movies.forEach(movie => renderMovies(movie))
+  }
+}
+
+function cleanAllMovies() {
+  moviesContainer.innerHTML = ''
+}
+
+async function searchMovieByName(title) {
+  const url = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${title}&language=en-US&page=1`
+  const fetchResponse = await fetch(url)
+  const { results } = await fetchResponse.json()
+  return results
+}
 
 async function getPopularMovies() {
   const url = `https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}&language=en-US&page=1`
@@ -13,6 +46,7 @@ window.onload = async function() {
   const movies = await getPopularMovies()
   movies.forEach(movie => renderMovies(movie))
 }
+
 
 function renderMovies(movie) {
     const { title, poster_path, vote_average, release_date, overview } = movie;
