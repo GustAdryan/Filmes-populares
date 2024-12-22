@@ -3,8 +3,9 @@ import { apiKey } from "./environment/key.js";
 const moviesContainer = document.querySelector('.container-movies');
 const inputSearch = document.querySelector('#search');
 const searchBtn = document.querySelector('.iconSearch');
+const inputcheckbox = document.querySelector('#MoviesFav');
 
-
+inputcheckbox.addEventListener('change', checkCheckboxStatus)
 searchBtn.addEventListener('click', movieSearch);
 
 inputSearch.addEventListener('keyup', function(event) {
@@ -14,6 +15,18 @@ inputSearch.addEventListener('keyup', function(event) {
     return
   }
 })
+
+function checkCheckboxStatus() {
+  const isChecked = inputcheckbox.checked
+  if (isChecked) {
+    cleanAllMovies()
+    const movies = getFavoriteMovies() || []
+    movies.forEach(movie => renderMovies(movie))
+  } else {
+    cleanAllMovies()
+    getAllPopularMovies()
+  }
+}
 
 async function movieSearch() {
   const inputValue = inputSearch.value
@@ -39,18 +52,64 @@ async function getPopularMovies() {
   const url = `https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}&language=en-US&page=1`
   const fetchResponse = await fetch(url)
   const { results } = await fetchResponse.json()
+  console.log(results)
   return results
 } 
 
-window.onload = async function() {
+function favoriteButtonPressed(event, movie) {
+  const favoriteState = {
+    favorited: 'img/Vector.svg',
+    notFavorited: 'img/Heart.svg'
+  }
+
+  if(event.target.src.includes(favoriteState.notFavorited)) {
+    // aqui ele será favoritado
+    event.target.src = favoriteState.favorited
+    saveToLocalStorage(movie)
+  } else {
+    // aqui ele será desfavoritado
+    event.target.src = favoriteState.notFavorited
+    removeFromLocalStorage(movie.id)
+  }
+}
+
+function getFavoriteMovies() {
+  return JSON.parse(localStorage.getItem('favoriteMovies'))
+}
+
+function saveToLocalStorage(movie) {
+  const movies = getFavoriteMovies() || []
+  movies.push(movie)
+  const moviesJSON = JSON.stringify(movies)
+  localStorage.setItem('favoriteMovies', moviesJSON)
+}
+
+function checkMovieIsFavorited(id) {
+  const movies = getFavoriteMovies() || []
+  return movies.find(movie => movie.id == id)
+  console.log(id)
+}
+
+function removeFromLocalStorage(id) {
+  const movies = getFavoriteMovies() || []
+  const findMovie = movies.find(movie => movie.id == id)
+  const newMovies = movies.filter(movie => movie.id != findMovie.id)
+  localStorage.setItem('favoriteMovies', JSON.stringify(newMovies))
+} 
+
+async function getAllPopularMovies() {
   const movies = await getPopularMovies()
   movies.forEach(movie => renderMovies(movie))
 }
 
+window.onload = async function() {
+  getAllPopularMovies()
+}
+
 
 function renderMovies(movie) {
-    const { title, poster_path, vote_average, release_date, overview } = movie;
-    const isFavorited = false;
+    const { id, title, poster_path, vote_average, release_date, overview } = movie;
+    const isFavorited = checkMovieIsFavorited(id);
 
     const year = new Date(release_date).getFullYear()
     const image = `https://image.tmdb.org/t/p/w500${poster_path}`
@@ -99,6 +158,7 @@ function renderMovies(movie) {
             rating_container.appendChild(favoritar);
             const favoritarImage = document.createElement('img');
             favoritarImage.src = isFavorited ? './img/Vector.svg' : './img/Heart.svg';
+            favoritarImage.addEventListener('click', (event) => favoriteButtonPressed(event, movie) )
             const favoritarSpan = document.createElement('span');
             favoritarSpan.textContent = 'Favoritar';
             favoritar.appendChild(favoritarImage);
