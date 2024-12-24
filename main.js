@@ -1,13 +1,14 @@
 import { apiKey } from "./environment/key.js";
+import { movieSearch } from "./js/search.js";
 
-const moviesContainer = document.querySelector('.container-movies');
-const inputSearch = document.querySelector('#search');
+export const moviesContainer = document.querySelector('.container-movies');
+export const inputSearch = document.querySelector('#search');
 const searchBtn = document.querySelector('.iconSearch');
 const inputcheckbox = document.querySelector('#MoviesFav');
 
 inputcheckbox.addEventListener('change', checkCheckboxStatus)
-searchBtn.addEventListener('click', movieSearch);
 
+searchBtn.addEventListener('click', movieSearch);
 inputSearch.addEventListener('keyup', function(event) {
   console.log(event.key)
   if (event.keyCode == 13) {
@@ -26,26 +27,6 @@ function checkCheckboxStatus() {
     cleanAllMovies()
     getAllPopularMovies()
   }
-}
-
-async function movieSearch() {
-  const inputValue = inputSearch.value
-  if (inputValue != '') {
-    cleanAllMovies()
-    const movies = await searchMovieByName(inputValue)
-    movies.forEach(movie => renderMovies(movie))
-  }
-}
-
-function cleanAllMovies() {
-  moviesContainer.innerHTML = ''
-}
-
-async function searchMovieByName(title) {
-  const url = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${title}&language=en-US&page=1`
-  const fetchResponse = await fetch(url)
-  const { results } = await fetchResponse.json()
-  return results
 }
 
 async function getPopularMovies() {
@@ -107,7 +88,7 @@ window.onload = async function() {
 }
 
 
-function renderMovies(movie) {
+export function renderMovies(movie) {
     const { id, title, poster_path, vote_average, release_date, overview } = movie;
     const isFavorited = checkMovieIsFavorited(id);
 
