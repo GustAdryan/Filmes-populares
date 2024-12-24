@@ -10,7 +10,6 @@ inputcheckbox.addEventListener('change', checkCheckboxStatus)
 
 searchBtn.addEventListener('click', movieSearch);
 inputSearch.addEventListener('keyup', function(event) {
-  console.log(event.key)
   if (event.keyCode == 13) {
     movieSearch()
     return
@@ -29,11 +28,14 @@ function checkCheckboxStatus() {
   }
 }
 
+export function cleanAllMovies() {
+  moviesContainer.innerHTML = ''
+}
+
 async function getPopularMovies() {
   const url = `https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}&language=en-US&page=1`
   const fetchResponse = await fetch(url)
   const { results } = await fetchResponse.json()
-  console.log(results)
   return results
 } 
 
@@ -68,7 +70,6 @@ function saveToLocalStorage(movie) {
 function checkMovieIsFavorited(id) {
   const movies = getFavoriteMovies() || []
   return movies.find(movie => movie.id == id)
-  console.log(id)
 }
 
 function removeFromLocalStorage(id) {

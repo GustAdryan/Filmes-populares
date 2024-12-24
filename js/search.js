@@ -1,4 +1,4 @@
-import { inputSearch, renderMovies, moviesContainer } from "../main.js"
+import { inputSearch, renderMovies, cleanAllMovies } from "../main.js"
 import { apiKey } from "../environment/key.js"
 
 export async function movieSearch() {
@@ -8,10 +8,6 @@ export async function movieSearch() {
     const movies = await searchMovieByName(inputValue)
     movies.forEach(movie => renderMovies(movie))
   }
-}
-
-function cleanAllMovies() {
-  moviesContainer.innerHTML = ''
 }
 
 async function searchMovieByName(title) {
